@@ -17,6 +17,8 @@ int main(int argc, char *argv[]){
     Read first input, assumes <ip>:<port> syntax, convert into one string (Desthost) and one integer (port). 
      Atm, works only on dotted notation, i.e. IPv4 and DNS. IPv6 does not work if its using ':'. 
   */
+
+  //HEJ
   char delim[]=":";
   char *Desthost=strtok(argv[1],delim);
   char *Destport=strtok(NULL,delim);
