@@ -36,6 +36,17 @@ int main(int argc, char *argv[]){
   }
 
 
+  /*strcat test
+  float test = 1.1;
+  char testchar[20];
+  memset(testchar,0,sizeof(testchar));
+  sprintf(testchar,"%f",test);
+  strcat(testchar,"\n");
+
+  printf("Test av strcat kolla efter nerhopp %s", testchar);
+  */
+
+
   /*
     Read first input, assumes <ip>:<port> syntax, convert into one string (Desthost) and one integer (port). 
      Atm, works only on dotted notation, i.e. IPv4 and DNS. IPv6 does not work if its using ':'. 
@@ -152,19 +163,69 @@ int main(int argc, char *argv[]){
       value1 = atof(valuebuffer);
       value2 = atof(valuebuffer2);
       printf("\n\nvalue1 = %f\n value2 = %f", value1,value2);
-      if(strncpy(operation,"fadd",strlen(operation)))
+      if(strcmp(operation,"fadd") == 0)
       {
         result = value1 + value2;
-        strcat(resultchar, (char)result + "\n");
+        sprintf(resultchar,"%f",result);
+        strcat(resultchar,"\n");
+        
         //Se om de fungerar.
-        printf("%s", (char)result);
+        printf("\nresult with hoppfully backspace: %s\n", resultchar);
 
-        if ((numbytes = send(client_socket, buf, sizeof(result), 0)) == -1) 
+        if ((numbytes = send(client_socket, resultchar, sizeof(resultchar), 0)) == -1) 
         {
-	        perror("sendto:");
+	        perror("sendto error: fadd");
 	        exit(1);
 	      }
-        printf("sent %d bytes and string:%f\n", numbytes, result);
+        printf("sent %d bytes and string:%s\n", numbytes, resultchar);
+      }
+      else if(strcmp(operation,"fdiv") == 0)
+      {
+        result = (value1/value2);
+        printf("Float div blev: %f\n",result);
+        sprintf(resultchar,"%f",result);
+        strcat(resultchar,"\n");
+        printf("\nresult with hoppfully backspace: %s\n", resultchar);
+
+        if ((numbytes = send(client_socket, resultchar, sizeof(resultchar), 0)) == -1) 
+        {
+	        perror("sendto error: fdiv");
+	        exit(1);
+	      }
+        printf("sent %d bytes and string:%s\n", numbytes, resultchar);
+      }
+      else if(strcmp(operation,"fmul"))
+      {
+        result = value1*value2;
+
+        printf("Float mul blev: %f\n",result);
+        sprintf(resultchar,"%f",result);
+        strcat(resultchar,"\n");
+        printf("\nresult with hoppfully backspace: %s", resultchar);
+
+        if ((numbytes = send(client_socket, resultchar, sizeof(resultchar), 0)) == -1) 
+        {
+	        perror("sendto error: fmul");
+	        exit(1);
+	      }
+        printf("sent %d bytes and string: %s\n", numbytes, resultchar);
+      }
+      else if(strcmp(operation,"fsub"))
+      {
+        result = value1 - value2;
+
+        printf("Float subtraktionen blev: %f\n",result);
+        sprintf(resultchar,"%f",result);
+        strcat(resultchar,"\n");
+
+        printf("\nresult with hoppfully backspace: %s", resultchar);
+
+        if ((numbytes = send(client_socket, resultchar, sizeof(resultchar), 0)) == -1) 
+        {
+	        perror("sendto error: fmul");
+	        exit(1);
+	      }
+        printf("sent %d bytes and string: %s\n", numbytes, resultchar);
       }
     }
     else
