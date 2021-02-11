@@ -10,6 +10,7 @@
 #include <iostream>
 #include <string.h>
 #include <arpa/inet.h>
+#include <calcLib.h>
 // Enable if you want debugging to be printed, see examble below.
 // Alternative, pass 
 #define DEBUG
@@ -35,6 +36,7 @@ int main(int argc, char *argv[]){
     exit(1);
   }
 
+  initCalcLib();
 
   /*strcat test
   float test = 1.1;
@@ -70,8 +72,6 @@ int main(int argc, char *argv[]){
   struct addrinfo hints;
   char operation[100];
   char resultchar[100];
-  char valuebuffer[100];
-  char valuebuffer2[100];
   memset(&hints, 0, sizeof(hints));
 	hints.ai_family = AF_UNSPEC;
 	hints.ai_socktype = SOCK_STREAM;
@@ -142,8 +142,6 @@ int main(int argc, char *argv[]){
 	  }
 
 	  printf("sent %d bytes and string:%s\n", numbytes, buf);
-  
-    
 
     //reciving <operation><value><value> to buf
     memset(&buf, 0, sizeof(buf));
@@ -154,84 +152,103 @@ int main(int argc, char *argv[]){
 	  }
 
     printf("client: received %s",buf);
-    sscanf(buf,"%s%s%s",operation, valuebuffer,valuebuffer2);
-    printf("Inlasta Scanf charen = %s\nvaluebuffer1 = %s\nvaluebuffer2 = %s\n", operation, valuebuffer,valuebuffer2);
+    sscanf(buf,"%s",operation);
+    printf("Inlasta Scanf charen = %s", operation);
 
-    if(strlen(operation) == 4)
+    if(buf[0]=='f') 
     {
-      float value1 = 0.0f, value2 = 0.0f, result = 0.0f;
-      value1 = atof(valuebuffer);
-      value2 = atof(valuebuffer2);
-      printf("\n\nvalue1 = %f\n value2 = %f", value1,value2);
+      double value1, value2, result;
+
+      sscanf(buf,"%s%lg%lg",operation, &value1, &value2);
+      
+      printf("\n\nvalue1 = %8.8g\nvalue2 = %8.8g\n", value1,value2);
+
       if(strcmp(operation,"fadd") == 0)
       {
         result = value1 + value2;
-        sprintf(resultchar,"%f",result);
+        printf("\nResult char add: %8.8g",result);
+        sprintf(resultchar,"%8.8g",result);
+       
         strcat(resultchar,"\n");
         
-        //Se om de fungerar.
-        printf("\nresult with hoppfully backspace: %s\n", resultchar);
-
-        if ((numbytes = send(client_socket, resultchar, sizeof(resultchar), 0)) == -1) 
-        {
-	        perror("sendto error: fadd");
-	        exit(1);
-	      }
-        printf("sent %d bytes and string:%s\n", numbytes, resultchar);
       }
       else if(strcmp(operation,"fdiv") == 0)
       {
         result = (value1/value2);
-        printf("Float div blev: %f\n",result);
-        sprintf(resultchar,"%f",result);
+        printf("Float div blev: %8.8g\n",result);
+        sprintf(resultchar,"%8.8g",result);
         strcat(resultchar,"\n");
-        printf("\nresult with hoppfully backspace: %s\n", resultchar);
+        
 
-        if ((numbytes = send(client_socket, resultchar, sizeof(resultchar), 0)) == -1) 
-        {
-	        perror("sendto error: fdiv");
-	        exit(1);
-	      }
-        printf("sent %d bytes and string:%s\n", numbytes, resultchar);
       }
-      else if(strcmp(operation,"fmul"))
+      else if(strcmp(operation,"fmul") == 0)
       {
         result = value1*value2;
 
-        printf("Float mul blev: %f\n",result);
-        sprintf(resultchar,"%f",result);
+        printf("Float mul blev: %8.8g\n",result);
+        sprintf(resultchar,"%8.8g",result);
         strcat(resultchar,"\n");
-        printf("\nresult with hoppfully backspace: %s", resultchar);
 
-        if ((numbytes = send(client_socket, resultchar, sizeof(resultchar), 0)) == -1) 
-        {
-	        perror("sendto error: fmul");
-	        exit(1);
-	      }
-        printf("sent %d bytes and string: %s\n", numbytes, resultchar);
       }
-      else if(strcmp(operation,"fsub"))
+      else if(strcmp(operation,"fsub") == 0)
       {
         result = value1 - value2;
 
-        printf("Float subtraktionen blev: %f\n",result);
-        sprintf(resultchar,"%f",result);
+        printf("Float subtraktionen blev: %8.8g\n",result);
+        sprintf(resultchar,"%8.8g",result);
         strcat(resultchar,"\n");
-
-        printf("\nresult with hoppfully backspace: %s", resultchar);
-
-        if ((numbytes = send(client_socket, resultchar, sizeof(resultchar), 0)) == -1) 
-        {
-	        perror("sendto error: fmul");
-	        exit(1);
-	      }
-        printf("sent %d bytes and string: %s\n", numbytes, resultchar);
       }
+      else
+      {
+        perror("sendto error: did not find proper operation");
+      }
+    //Se om de fungerar.
+    printf("\nresult with hoppfully backspace: %sEND", resultchar);
+
+    if ((numbytes = send(client_socket, resultchar, strlen(resultchar), 0)) == -1) 
+    {
+	    perror("sendto error: float");
+	    exit(1);
+	  }
+    printf("sent %d bytes and string:%s\n", numbytes, resultchar);
     }
     else
     {
       int valueInt1 = 0, valueInt2 = 0, resultInt = 0;
+      sscanf(buf,"%s%d%d",operation, &valueInt1, &valueInt2);
+      
+      printf("\n\nvalue1 = %d\nvalue2 = %d\n", valueInt1,valueInt2);
 
+      if(strcmp(operation,"add")==0){
+        resultInt=valueInt1+valueInt2;
+      } 
+      else if (strcmp(operation, "sub")==0)
+      {
+        resultInt=valueInt1-valueInt2;
+      
+      } 
+      else if (strcmp(operation, "mul")==0)
+      {
+       resultInt=valueInt1*valueInt2;
+      } 
+      else if (strcmp(operation, "div")==0)
+      {
+      
+      resultInt=valueInt1/valueInt2;
+    } 
+    else {
+      printf("No match\n");
+    }
+    
+    sprintf(resultchar,"%d",resultInt);
+    strcat(resultchar,"\n");
+
+    if ((numbytes = send(client_socket, resultchar, strlen(resultchar), 0)) == -1) 
+    {
+	    perror("sendto error: float");
+	    exit(1);
+	  }
+    printf("sent %d bytes and string:%s\n", numbytes, resultchar);
     }
   }
   
@@ -241,7 +258,6 @@ int main(int argc, char *argv[]){
   } 
 
   }
-
 
   /* Do magic */
   int port=atoi(Destport);
