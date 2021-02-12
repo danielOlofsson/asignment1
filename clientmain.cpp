@@ -135,7 +135,7 @@ int main(int argc, char *argv[]){
   {
     memset(&buf, 0, sizeof(buf));
     strncpy(buf,"OK\n",sizeof(buf));
-    if ((numbytes = send(client_socket, buf, sizeof(buf), 0)) == -1) 
+    if ((numbytes = send(client_socket, buf, strlen(buf), 0)) == -1) 
     {
 	    perror("sendto:");
 	    exit(1);
@@ -239,7 +239,7 @@ int main(int argc, char *argv[]){
     else {
       printf("No match\n");
     }
-    
+
     sprintf(resultchar,"%d",resultInt);
     strcat(resultchar,"\n");
 
